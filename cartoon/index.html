@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="2027 大板橋聯營開門紅卡通賽跑版：三組即時競賽、個人目標與 HRM 獨立挑戰。">
+  <meta name="theme-color" content="#bfe8ff">
+  <title>衝呀！2027 開門紅大賽｜卡通賽跑版</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23bfe8ff'/%3E%3Ccircle cx='31' cy='29' r='16' fill='%23f6b83f' stroke='%23183153' stroke-width='4'/%3E%3Cpath d='M21 28h3m14 0h3M25 37c4 3 9 3 13 0' fill='none' stroke='%23183153' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#race">跳到即時賽況</a>
+
+  <header class="topbar">
+    <div class="shell nav">
+      <a class="logo" href="#top" aria-label="回到頁首">
+        <span class="logo-badge">GO!</span>
+        <span><b>大板橋開門紅</b><small>2027 RALLY RUN</small></span>
+      </a>
+      <nav aria-label="版本與內容導覽">
+        <a href="../index.html">精品版</a>
+        <a href="#race">即時賽況</a>
+        <a href="#players">選手村</a>
+        <a href="#rewards">補給站</a>
+      </nav>
+      <div class="nav-actions">
+        <span id="cloud-state" class="cloud-pill"><i></i><span>尚未登入</span></span>
+        <button id="login-button" class="game-button yellow" type="button">登入同步</button>
+        <button id="manage-button" class="game-button coral" type="button" hidden>更新戰況</button>
+        <button id="signout-button" class="round-button" type="button" aria-label="登出" title="登出" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="cloud cloud-one" aria-hidden="true"></div>
+      <div class="cloud cloud-two" aria-hidden="true"></div>
+      <div class="sun" aria-hidden="true"><span></span></div>
+      <div class="hero-shapes" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="shell hero-grid">
+        <div class="hero-copy">
+          <p class="season-pill">🏁 2026.11 — 2027.02</p>
+          <h1><span>衝呀！</span><br>2027 開門紅大賽</h1>
+          <p>板橋、華江、新板三家分行打散成軍。每一筆「季進度（含在途）」都會讓隊伍往終點再衝一步！</p>
+          <div class="hero-buttons">
+            <a class="game-button coral big" href="#race">馬上看比賽 <span>→</span></a>
+            <span id="source-date" class="source-date">戰況尚未同步</span>
+          </div>
+        </div>
+        <aside class="mission-card" aria-label="全體任務總覽">
+          <div class="mission-flag">MISSION</div>
+          <div class="hero-team-art" aria-hidden="true">
+            <img src="assets/team-a-runner.png" alt="">
+            <img src="assets/team-b-runner.png" alt="">
+            <img src="assets/team-c-runner.png" alt="">
+          </div>
+          <div class="mission-copy"><span>全體挑戰目標</span><strong>3.385<small> 億</small></strong></div>
+          <div class="mission-stats"><div><span>目前進度</span><b id="overall-progress">—</b></div><div><span>總達成率</span><b id="overall-rate">—</b></div></div>
+        </aside>
+      </div>
+      <div class="grass-edge" aria-hidden="true"></div>
+    </section>
+
+    <section id="race" class="race-section">
+      <div class="shell">
+        <div class="section-title race-title">
+          <div><p>🏆 LIVE RACE</p><h2>開門紅即時賽況</h2><span>角色位置依團隊達成率前進；點擊隊伍，火焰立即升級！</span></div>
+          <div class="race-actions"><span id="countdown" class="countdown">距離開賽 —</span><button id="refresh-button" class="game-button white" type="button" disabled>↻ 同步戰況</button></div>
+        </div>
+        <p id="status-message" class="status-line" aria-live="polite">登入後即可同步比賽進度；隊伍與目標可先行查看。</p>
+        <div class="cheer-guide">
+          <span class="cheer-guide-icon" aria-hidden="true">🔥</span>
+          <p><b>今日應援火力</b><span>直接點擊 A、B、C 隊名即可加油；每個瀏覽器每天限點一次，台北時間午夜歸零。</span></p>
+          <em id="cheer-mode">應援連線中…</em>
+        </div>
+        <div class="stadium">
+          <div class="stands" aria-hidden="true"><span>●</span><span>●</span><span>●</span><span>●</span><span>●</span><span>●</span><span>●</span><span>●</span><span>●</span><span>●</span></div>
+          <div class="stadium-sign"><span>BIG BANQIAO</span><b>RALLY RUN 2027</b></div>
+          <div id="raceboard" class="raceboard" aria-live="polite"></div>
+        </div>
+        <div id="podium" class="podium-row"></div>
+      </div>
+    </section>
+
+    <section id="players" class="players-section">
+      <div class="shell">
+        <div class="section-title">
+          <div><p>🎽 TEAM PLAYERS</p><h2>三組選手村</h2><span>25 位夥伴跨分行組隊，組目標只差 200 萬</span></div>
+          <div id="team-tabs" class="tabs" role="tablist" aria-label="切換隊伍">
+            <button role="tab" type="button" aria-selected="true" data-team-tab="all">全部</button>
+            <button role="tab" type="button" aria-selected="false" data-team-tab="A">A 隊</button>
+            <button role="tab" type="button" aria-selected="false" data-team-tab="B">B 隊</button>
+            <button role="tab" type="button" aria-selected="false" data-team-tab="C">C 隊</button>
+          </div>
+        </div>
+        <div id="player-cards" class="player-cards"></div>
+      </div>
+    </section>
+
+    <section id="rewards" class="bonus-section">
+      <div class="shell bonus-grid">
+        <article class="hrm-stage">
+          <div class="bonus-label">👑 BONUS STAGE</div>
+          <div class="hrm-main">
+            <div class="hrm-character" aria-hidden="true"><img src="assets/hrm-leader.png" alt=""></div>
+            <div><p>楊璧菁的獨立挑戰</p><h2>3,000<small> 萬</small></h2><span>達成 100% 可抓抓樂<br>提早達成，可連續抓三個月！</span></div>
+          </div>
+          <div class="hrm-track"><i id="hrm-bar"></i><b id="hrm-badge">—</b></div>
+          <p id="hrm-progress">登入後同步季進度（含在途）</p>
+        </article>
+
+        <article class="supply-card">
+          <div class="bonus-label blue">🎁 REWARD SHOP</div>
+          <h2>能量補給站</h2>
+          <div class="reward-list">
+            <article class="reward-live-card monthly-rank">
+              <header><span class="reward-emoji">🪙</span><p><b>每月團隊第一名</b><small>個人 AP 欄月進度加總・50 元＋10 元抓抓樂</small></p><em>MONTHLY</em></header>
+              <ol id="monthly-team-ranking" class="mini-ranking" aria-live="polite"></ol>
+            </article>
+            <article class="reward-live-card champion-rank">
+              <header><span class="reward-emoji">🍽️</span><p><b>開門紅總冠軍</b><small>季進度（含在途）加總・冠軍隊伍歡樂聚餐</small></p><em>CHAMPION</em></header>
+              <ol id="champion-team-ranking" class="mini-ranking" aria-live="polite"></ol>
+            </article>
+            <article class="reward-live-card personal-rank">
+              <header><span class="reward-emoji">🎟️</span><p><b>個人突破 3K／4K／5K</b><small>季進度（含在途）・餐券 2／4／8 張</small></p><em>MILESTONE</em></header>
+              <div id="personal-milestone-ranking" class="personal-milestones" aria-live="polite"></div>
+            </article>
+          </div>
+          <div class="rp-note"><b>知識加速器</b><span>每月後兩名進行專題討論 RP</span></div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <footer><div class="shell"><p><b>READY, SET, GO!</b>　大板橋聯營開門紅大賽</p><p>進度來源：季進度（含在途）</p></div></footer>
+
+  <div id="cheer-toast" class="cheer-toast" role="status" aria-live="polite" hidden></div>
+
+  <dialog id="login-dialog" class="pop-dialog">
+    <div class="dialog-card">
+      <button class="dialog-close" type="button" data-close-dialog aria-label="關閉">×</button>
+      <div class="dialog-mascot" aria-hidden="true">🔐</div>
+      <p class="dialog-kicker">PLAYER LOGIN</p><h2>登入比賽系統</h2><p class="dialog-intro">登入後查看即時戰況；更新權限依帳號角色開放。</p>
+      <form id="manager-login-form" class="login-form manager" hidden>
+        <input id="manager-email" type="email" autocomplete="username" hidden>
+        <label for="manager-password">管理上傳密碼</label>
+        <input id="manager-password" type="password" autocomplete="current-password" required placeholder="輸入管理密碼">
+        <button class="game-button coral full" type="submit">驗證並開啟更新</button>
+        <p id="manager-login-message" class="form-message" aria-live="polite"></p>
+      </form>
+      <div id="login-divider" class="divider" hidden><span>或使用帳號登入</span></div>
+      <form id="account-login-form" class="login-form">
+        <label for="email">電子郵件</label><input id="email" type="email" autocomplete="email" required placeholder="name@company.com">
+        <label for="password">密碼</label><input id="password" type="password" autocomplete="current-password" required placeholder="輸入密碼">
+        <button class="game-button navy full" type="submit">使用帳號登入</button>
+        <p id="account-login-message" class="form-message" aria-live="polite"></p>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="manage-dialog" class="pop-dialog">
+    <div class="dialog-card">
+      <button class="dialog-close" type="button" data-close-dialog aria-label="關閉">×</button>
+      <div class="dialog-mascot" aria-hidden="true">📣</div>
+      <p class="dialog-kicker">UPDATE SCORE</p><h2>更新比賽戰況</h2><p class="dialog-intro">與精品版、Q4monitor 共用同一份雲端實績。</p>
+      <div class="upload-list">
+        <button id="dialog-sync-button" class="upload-choice" type="button"><span>🔄</span><p><b>同步最新雲端資料</b><small>重新整理全部選手進度</small></p><i>→</i></button>
+        <label id="raw-file-label" class="upload-choice"><span>📗</span><p><b>上傳季職達原始檔</b><small>.xlsx｜季進度（含在途）</small></p><i>→</i><input id="raw-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
+        <label id="monthly-file-label" class="upload-choice ap-only"><span>🅰️</span><p><b>僅更新 AP 月進度</b><small>.xlsx｜不改季進度、目標或資料日期</small></p><i>→</i><input id="monthly-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
+        <label id="performance-file-label" class="upload-choice"><span>📊</span><p><b>上傳 Excel／CSV</b><small>使用標準績效欄位</small></p><i>→</i><input id="performance-file" type="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
+      </div>
+      <p id="upload-message" class="upload-message" aria-live="polite">檔案會先檢查姓名與欄位，確認後才寫入。</p>
+    </div>
+  </dialog>
+
+  <script src="../config.js"></script>
+  <script defer src="app.js?v=20260916-ap-rate-2"></script>
+</body>
+</html>
