@@ -51,7 +51,7 @@ function renderRace(){
   const ranked=ranking(),rankMap=new Map(ranked.map(t=>[t.id,t.rank])),mine=ownCheer();
   $('raceboard').innerHTML=teams.map(team=>{const s=stats(team.id),r=rankMap.get(team.id),pct=Math.min(s.rate,100),desktop=12+pct*.7,mobile=9+pct*.56,finished=hasLoaded&&s.rate>=100,status=!hasLoaded?'等待同步':finished?'完賽！':r===1?'領先中':s.rate>=80?'最後衝刺':'全速前進',cheers=cheerCount(team.id);return`<article class="race-lane" data-team-lane="${team.id}" style="--team:${team.color};--label-color:${team.head}">
     <button class="lane-label ${mine?.team===team.id?'is-my-cheer':''}" type="button" data-cheer-team="${team.id}" aria-label="替 ${team.label} 加油，目前 ${cheers} 人"><b>${team.id}</b><span>${team.name}</span><small>${mine?.team===team.id?'✓ 今日已加油':mine?'今日已應援':'🔥 點我加油'} ${Math.min(cheers,26)}/26</small></button>
-    <div class="runner-wrap" style="--desktop-left:${desktop}%;--mobile-left:${mobile}%">${flame(cheers)}${r===1?'<span class="runner-crown">♛</span>':''}${runner(team.id)}</div>
+    <div class="runner-wrap" style="--desktop-left:${desktop}%;--mobile-left:${mobile}%">${flame(cheers)}${runner(team.id)}</div>
     <div class="lane-stats"><b>${hasLoaded?`${s.rate.toFixed(1)}%`:'—'}</b><span>${hasLoaded?money(s.progress):'進度待同步'} / ${money(s.target)}</span></div>
     <span class="lane-status ${r===1?'leader':''} ${finished?'finished':''}">${status}</span><span class="finish">FINISH</span>${finished?'<span class="confetti"><i></i><i></i><i></i></span>':''}
   </article>`}).join('');
