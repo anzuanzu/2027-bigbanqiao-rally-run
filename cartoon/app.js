@@ -109,7 +109,7 @@ async function submitCheer(teamId){
     else showCheerToast(`加油失敗：${error.message||'請稍後再試。'}`,'error');
   }finally{cheerBusy=false;}
 }
-async function refreshCheerDay(){const today=taipeiDate();if(today!==cheerDate){cheerDate=today;cheerRecords=[];await loadCheers({quiet:true});}else if(cheerMode==='cloud')await loadCheers({quiet:true});}
+async function refreshCheerDay(){const today=taipeiDate();if(today!==cheerDate){cheerDate=today;cheerRecords=[];}await loadCheers({quiet:true});}
 
 async function fetchPerformanceRecords(){return supabase.rpc('get_public_rally_performance');}
 async function loadPerformance({announce=true}={}){if(!supabase||busy)return;setBusy(true);if(announce)setStatus('裁判正在同步最新戰況…');try{const{data,error}=await fetchPerformanceRecords();hasMonthlyProgress=true;if(error)throw error;performance=recordMap(data||[]);hasLoaded=true;const dates=sourceDates(),monthlyNote='AP 月進度已同步。';setStatus(`同步完成！共 ${Object.keys(performance).length} 位選手。${dates.length?`資料日期：${dates.join('、')}。`:''}${monthlyNote}`,'success');setUpload(`戰況同步完成，共 ${Object.keys(performance).length} 筆。${monthlyNote}`,'success');render();}catch(error){setStatus(`同步失敗：${error.message||'請稍後再試。'}`,'error');setUpload(`同步失敗：${error.message||'請稍後再試。'}`,'error');}finally{setBusy(false);}}
