@@ -12,7 +12,7 @@
 - 每位成員的開門紅目標與「季進度（含在途）」。
 - HRM 楊璧菁的獨立 3,000 萬挑戰。
 - 競賽規則、個人生產力獎項與每月結算資訊。
-- 與既有 Q4monitor 相同的 Supabase 登入、同步、原始檔上傳與 Excel／CSV 更新方式。
+- 訪客可直接讀取公開即時戰況；原始檔上傳與 Excel／CSV 更新仍使用既有 Q4monitor 的管理驗證方式。
 
 本網站的「目前進度」只使用既有 Q4monitor 的 `季進度（含在途）`，不使用基金進度或保險進度替代。
 
@@ -147,11 +147,13 @@ Supabase performance_records
 
 ### 4.4 權限與狀態
 
-- 未登入：可看競賽規則、目標與固定分組，進度顯示等待登入。
-- Viewer：可同步與查看實績，不可上傳。
-- Editor／Admin：可同步、上傳季職達原始檔及 Excel／CSV。
+- 訪客：透過 `get_public_rally_performance()` 公開唯讀 RPC 同步戰況；頁面載入時與每分鐘自動更新一次，無須登入。
+- 公開 RPC 僅回傳卡通競賽所需的欄位，不開放 `performance_records` 的匿名 `SELECT`，因此不會改變 Q4monitor 原本的資料表權限。
+- Viewer：可觀看公開戰況，不可上傳。
+- Editor／Admin：驗證後可開啟「更新戰況」，上傳季職達原始檔及 Excel／CSV。
 - 管理上傳密碼：沿用 Q4monitor 的專用上傳帳號，只在 Supabase Authentication 儲存密碼。
 - `anonKey` 可公開；不得在前端放置 `service_role` 金鑰。
+- 啟用前須依序執行 `monthly-progress.sql` 與 `public-rally-read.sql`。
 
 ### 4.5 每日隊伍應援
 
@@ -165,7 +167,7 @@ Supabase performance_records
 
 ```text
 ┌──────────────────────────────────────────────────────┐
-│ 品牌／競賽期間               同步狀態  登入／管理更新 │
+│ 品牌／競賽期間               公開同步狀態  管理更新 │
 ├──────────────────────────────────────────────────────┤
 │ 2027 大板橋聯營開門紅                                │
 │ 目標在前，我們一起達成！          總目標／總進度／天數 │
@@ -205,7 +207,7 @@ Supabase performance_records
 - `MemberRow`：分行、職級、姓名、目標、進度、達成率、差額。
 - `HrmChallenge`：獨立 3,000 萬進度與提前達成狀態。
 - `RewardPanel`：團隊、個人、HRM 三類獎勵。
-- `LoginDialog`：管理密碼與一般帳號兩種登入。
+- `LoginDialog`：僅在需要上傳或更新資料時顯示的管理驗證。
 - `UploadDialog`：同步、季職達原始檔、Excel／CSV、上傳回饋。
 - `Toast／Inline status`：讀取中、成功、錯誤、空資料。
 
@@ -242,7 +244,7 @@ Supabase performance_records
 1. 固定名單共 26 人；A／B／C／HRM 人數為 9／8／8／1，且無重複或遺漏。
 2. 個人目標與四張圖片一致；分行與全體加總正確。
 3. A／B／C 目標為 10,200／10,250／10,400 萬。
-4. 登入後從 `performance_records.quarter_progress` 顯示進度。
+4. 未登入訪客可從公開唯讀 RPC 顯示最新進度；資料表本身的匿名讀取權限維持關閉。
 5. 上傳季職達原始檔後，進度、資料日期、個人達成率、團隊加總與排名同步更新。
 6. Viewer 看不到可用的上傳控制；Editor／Admin 可上傳。
 7. 錯誤檔案不寫入資料，並顯示清楚原因。

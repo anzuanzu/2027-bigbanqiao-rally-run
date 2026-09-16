@@ -25,9 +25,9 @@
         <a href="#rewards">補給站</a>
       </nav>
       <div class="nav-actions">
-        <span id="cloud-state" class="cloud-pill"><i></i><span>尚未登入</span></span>
-        <button id="login-button" class="game-button yellow" type="button">登入同步</button>
-        <button id="manage-button" class="game-button coral" type="button" hidden>更新戰況</button>
+        <span id="cloud-state" class="cloud-pill"><i></i><span>戰況連線中</span></span>
+        <button id="login-button" class="game-button yellow" type="button" hidden>管理登入</button>
+        <button id="manage-button" class="game-button coral" type="button">更新戰況</button>
         <button id="signout-button" class="round-button" type="button" aria-label="登出" title="登出" hidden>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
         </button>
@@ -71,7 +71,7 @@
           <div><p>🏆 LIVE RACE</p><h2>開門紅即時賽況</h2><span>角色位置依團隊達成率前進；點擊隊伍，火焰立即升級！</span></div>
           <div class="race-actions"><span id="countdown" class="countdown">距離開賽 —</span><button id="refresh-button" class="game-button white" type="button" disabled>↻ 同步戰況</button></div>
         </div>
-        <p id="status-message" class="status-line" aria-live="polite">登入後即可同步比賽進度；隊伍與目標可先行查看。</p>
+        <p id="status-message" class="status-line" aria-live="polite">正在連線公開戰況…</p>
         <div class="cheer-guide">
           <span class="cheer-guide-icon" aria-hidden="true">🔥</span>
           <p><b>今日應援火力</b><span>直接點擊 A、B、C 隊名即可加油；每個瀏覽器每天限點一次，台北時間午夜歸零。</span></p>
@@ -110,7 +110,7 @@
             <div><p>楊璧菁的獨立挑戰</p><h2>3,000<small> 萬</small></h2><span>達成 100% 可抓抓樂<br>提早達成，可連續抓三個月！</span></div>
           </div>
           <div class="hrm-track"><i id="hrm-bar"></i><b id="hrm-badge">—</b></div>
-          <p id="hrm-progress">登入後同步季進度（含在途）</p>
+          <p id="hrm-progress">戰況連線後顯示季進度（含在途）</p>
         </article>
 
         <article class="supply-card">
@@ -145,7 +145,7 @@
     <div class="dialog-card">
       <button class="dialog-close" type="button" data-close-dialog aria-label="關閉">×</button>
       <div class="dialog-mascot" aria-hidden="true">🔐</div>
-      <p class="dialog-kicker">PLAYER LOGIN</p><h2>登入比賽系統</h2><p class="dialog-intro">登入後查看即時戰況；更新權限依帳號角色開放。</p>
+      <p class="dialog-kicker">MANAGER CHECK</p><h2>驗證更新權限</h2><p class="dialog-intro">即時戰況已公開同步；只有上傳或更新資料時才需要管理驗證。</p>
       <form id="manager-login-form" class="login-form manager" hidden>
         <input id="manager-email" type="email" autocomplete="username" hidden>
         <label for="manager-password">管理上傳密碼</label>
@@ -179,6 +179,6 @@
   </dialog>
 
   <script src="../config.js"></script>
-  <script defer src="app.js?v=20260916-ap-rate-2"></script>
+  <script defer src="app.js?v=20260916-public-read"></script>
 </body>
 </html>

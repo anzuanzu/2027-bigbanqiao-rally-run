@@ -27,9 +27,9 @@ python3 -m http.server 4173
 - 管理快速登入帳號。
 - 季職達原始檔與標準 Excel／CSV 上傳格式。
 
-Editor／Admin 上傳後，兩個網站會讀取同一份資料。Viewer 只能同步查看。
+卡通版訪客開啟頁面後，即會透過公開唯讀資料入口同步最新戰況；不需要登入。只有按下「更新戰況」並上傳資料時，才需使用 Editor／Admin 管理驗證。Q4monitor 原有的 `performance_records` 存取規則不會被放寬。
 
-首次啟用卡通版的即時獎勵排行，請在 Supabase SQL Editor 執行 `supabase/monthly-progress.sql`。季職達原始檔會自 AP11 起讀取 AP 欄月進度；總冠軍與個人里程碑仍使用季進度（含在途）。每日應援的雲端共用功能則使用 `supabase/team-cheers.sql`。
+首次啟用公開卡通版，請依序在 Supabase SQL Editor 執行 `supabase/monthly-progress.sql` 與 `supabase/public-rally-read.sql`。季職達原始檔會自 AP11 起讀取 AP 欄月進度；總冠軍與個人里程碑仍使用季進度（含在途）。每日應援的雲端共用功能則使用 `supabase/team-cheers.sql`。
 
 ## 專案檔案
 
@@ -39,7 +39,7 @@ Editor／Admin 上傳後，兩個網站會讀取同一份資料。Viewer 只能�
 - `config.js`：Supabase 公開連線設定，不得放置 `service_role` 金鑰。
 - `docs/DEVELOPMENT.md`：需求解讀、分組、資料流程、視覺系統與驗收標準。
 - `cartoon/`：卡通賽跑版的 HTML、CSS、JavaScript 與設計規格。
-- `supabase/`：AP 月進度與每日應援所需的資料庫升級腳本。
+- `supabase/`：AP 月進度、公開唯讀戰況與每日應援所需的資料庫升級腳本。
 
 ## 部署
 
