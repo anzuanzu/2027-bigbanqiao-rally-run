@@ -17,6 +17,8 @@ const branchTargetRecordName='__分行季目標__';
 const $=id=>document.getElementById(id);
 let supabase=null,currentUser=null,canWrite=false,hasLoaded=false,hasMonthlyProgress=false,performance={},selectedTeam='all',busy=false;
 let cheerDate=taipeiDate(),cheerRecords=[],cheerMode='connecting',visitorId=getVisitorId(),cheerBusy=false,cheerToastTimer=0;
+const fontSizeScales={small:.9,standard:1,large:1.15};
+let fontSizeSetting=readFontSizeSetting();
 
 const key=(branch,name)=>`${branch}-${name}`;
 const esc=value=>String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -33,6 +35,8 @@ function sourceDates(){return[...new Set(Object.values(performance).map(r=>r.sou
 function taipeiDate(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
 function createVisitorId(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,char=>{const value=Math.random()*16|0,result=char==='x'?value:(value&3|8);return result.toString(16);});}
 function getVisitorId(){try{const saved=localStorage.getItem('big-banqiao-cheer-visitor');if(saved)return saved;const created=window.crypto?.randomUUID?.()||createVisitorId();localStorage.setItem('big-banqiao-cheer-visitor',created);return created;}catch{return createVisitorId();}}
+function readFontSizeSetting(){try{const saved=localStorage.getItem('big-banqiao-font-size');return Object.hasOwn(fontSizeScales,saved)?saved:'standard';}catch{return'standard';}}
+function applyFontSize(size=fontSizeSetting,{persist=false}={}){fontSizeSetting=Object.hasOwn(fontSizeScales,size)?size:'standard';document.documentElement.dataset.fontSize=fontSizeSetting;if(persist)try{localStorage.setItem('big-banqiao-font-size',fontSizeSetting);}catch{}document.querySelectorAll('[data-font-scale-owned]').forEach(node=>{node.style.fontSize='';node.removeAttribute('data-font-scale-owned');});const scale=fontSizeScales[fontSizeSetting];if(scale!==1){const nodes=[...document.querySelectorAll('body :is(h1,h2,h3,p,span,b,strong,small,em,a,button,label,input,li,td,th)')].filter(node=>node.textContent.trim()||node.matches('input'));const bases=nodes.map(node=>[node,parseFloat(getComputedStyle(node).fontSize)]);bases.forEach(([node,base])=>{if(Number.isFinite(base)&&base>0){node.style.fontSize=`${(base*scale).toFixed(2)}px`;node.setAttribute('data-font-scale-owned','');}});}document.querySelectorAll('button[data-font-size]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.fontSize===fontSizeSetting)));}
 function localCheerKey(){return`big-banqiao-cheers-v2-${cheerDate}`;}
 function readLocalCheers(){try{const value=JSON.parse(localStorage.getItem(localCheerKey())||'[]');return Array.isArray(value)?value.filter(r=>r.visitor_id&&teams.some(t=>t.id===r.team)):[];}catch{return[];}}
 function writeLocalCheers(){localStorage.setItem(localCheerKey(),JSON.stringify(cheerRecords));}
@@ -73,7 +77,7 @@ function renderRewards(){
 }
 function renderOverall(){const target=people.reduce((s,p)=>s+p.target,0),progress=people.reduce((s,p)=>s+personProgress(p),0);$('overall-progress').textContent=hasLoaded?money(progress):'—';$('overall-rate').textContent=hasLoaded?rateText(progress,target):'—';const dates=sourceDates();$('source-date').textContent=dates.length?`資料日期 ${dates.join('、')}`:hasLoaded?'雲端戰況已同步':'戰況尚未同步';}
 function renderCountdown(){const now=new Date(),start=new Date('2026-11-01T00:00:00+08:00'),end=new Date('2027-02-28T23:59:59+08:00'),day=86400000;$('countdown').textContent=now<start?`距離開賽 ${Math.ceil((start-now)/day)} 天`:now<=end?`賽程倒數 ${Math.max(1,Math.ceil((end-now)/day))} 天`:'本屆賽事已結束';}
-function render(){renderCountdown();renderOverall();renderRace();renderPlayers();renderHrm();renderRewards();renderCheerMode();}
+function render(){renderCountdown();renderOverall();renderRace();renderPlayers();renderHrm();renderRewards();renderCheerMode();applyFontSize();}
 
 function setStatus(message,tone=''){$('status-message').textContent=message;$('status-message').className=`status-line ${tone}`;}
 function setUpload(message,tone=''){$('upload-message').textContent=message;$('upload-message').className=`upload-message ${tone}`;}
@@ -131,6 +135,10 @@ function setupEvents(){
   document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('click',event=>{const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}));
   $('raceboard').addEventListener('click',event=>{const button=event.target.closest('[data-cheer-team]');if(button)void submitCheer(button.dataset.cheerTeam);});
   $('login-button').addEventListener('click',()=>{$('login-dialog').showModal();requestAnimationFrame(()=>(hasManagerUploadAccount?$('manager-password'):$('email')).focus());});
+  $('font-size-button').addEventListener('click',event=>{event.stopPropagation();const menu=$('font-size-menu'),open=menu.hidden;menu.hidden=!open;$('font-size-button').setAttribute('aria-expanded',String(open));});
+  document.querySelectorAll('button[data-font-size]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();applyFontSize(button.dataset.fontSize,{persist:true});$('font-size-menu').hidden=true;$('font-size-button').setAttribute('aria-expanded','false');}));
+  document.addEventListener('click',event=>{const control=$('font-size-control');if(!control.contains(event.target)){$('font-size-menu').hidden=true;$('font-size-button').setAttribute('aria-expanded','false');}});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){$('font-size-menu').hidden=true;$('font-size-button').setAttribute('aria-expanded','false');}});
   $('manage-button').addEventListener('click',()=>{if(canWrite)$('manage-dialog').showModal();else{$('login-dialog').showModal();requestAnimationFrame(()=>(hasManagerUploadAccount?$('manager-password'):$('email')).focus());}});
   $('refresh-button').addEventListener('click',()=>void loadPerformance());
   $('dialog-sync-button').addEventListener('click',()=>void loadPerformance());

@@ -202,6 +202,7 @@ Supabase performance_records
 ## 7. 主要元件與狀態
 
 - `Header`：競賽名稱、期間、資料日期、登入／登出。
+- `FontSizeControl`：頁首「Aa」按鈕；小／標準／大三段文字大小，使用 `localStorage` 保留個人偏好。
 - `HeroScoreboard`：總目標、總進度、整體達成率、倒數。
 - `TeamCard`：排名、隊名、人數、目標、進度、達成率。
 - `MemberRow`：分行、職級、姓名、目標、進度、達成率、差額。

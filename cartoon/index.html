@@ -26,6 +26,17 @@
       </nav>
       <div class="nav-actions">
         <span id="cloud-state" class="cloud-pill"><i></i><span>戰況連線中</span></span>
+        <div id="font-size-control" class="font-size-control">
+          <button id="font-size-button" class="round-button font-size-toggle" type="button" aria-label="調整文字大小" aria-expanded="false" aria-controls="font-size-menu">A<span>a</span></button>
+          <div id="font-size-menu" class="font-size-menu" role="group" aria-label="文字大小設定" hidden>
+            <b>文字大小</b>
+            <div>
+              <button type="button" data-font-size="small" aria-pressed="false">小</button>
+              <button type="button" data-font-size="standard" aria-pressed="true">標準</button>
+              <button type="button" data-font-size="large" aria-pressed="false">大</button>
+            </div>
+          </div>
+        </div>
         <button id="login-button" class="game-button yellow" type="button" hidden>管理登入</button>
         <button id="manage-button" class="game-button coral" type="button">更新戰況</button>
         <button id="signout-button" class="round-button" type="button" aria-label="登出" title="登出" hidden>
@@ -179,6 +190,6 @@
   </dialog>
 
   <script src="../config.js"></script>
-  <script defer src="app.js?v=20260916-public-read"></script>
+  <script defer src="app.js?v=20260916-font-size-2"></script>
 </body>
 </html>
