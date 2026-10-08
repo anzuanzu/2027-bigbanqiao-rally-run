@@ -9,6 +9,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23bfe8ff'/%3E%3Ccircle cx='31' cy='29' r='16' fill='%23f6b83f' stroke='%23183153' stroke-width='4'/%3E%3Cpath d='M21 28h3m14 0h3M25 37c4 3 9 3 13 0' fill='none' stroke='%23183153' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css?v=20261008-usability">
   <link rel="stylesheet" href="motion.css?v=20261008-motion">
+  <link rel="stylesheet" href="team-intro.css?v=20261008-intro">
 </head>
 <body>
   <a class="skip-link" href="#race">跳到即時賽況</a>
@@ -102,6 +103,14 @@
           <div id="raceboard" class="raceboard" aria-live="polite"></div>
         </div>
         <div id="podium" class="podium-row"></div>
+        <div class="team-intro-hub" role="group" aria-label="播放隊員介紹">
+          <p><b>認識你的戰隊</b><span>點擊才播放・一起認識跨分行夥伴</span></p>
+          <div class="team-intro-entries">
+            <button type="button" data-intro-team="A" aria-haspopup="dialog" aria-controls="team-intro-dialog" style="--intro-team:#f05b61"><span class="intro-entry-letter">A</span><span><b>A 隊・隊員介紹</b><small>火焰衝鋒隊 · 9 位夥伴</small></span><span class="intro-play-icon" aria-hidden="true">▶</span></button>
+            <button type="button" data-intro-team="B" aria-haspopup="dialog" aria-controls="team-intro-dialog" style="--intro-team:#f6b83f"><span class="intro-entry-letter">B</span><span><b>B 隊・隊員介紹</b><small>閃電追風隊 · 8 位夥伴</small></span><span class="intro-play-icon" aria-hidden="true">▶</span></button>
+            <button type="button" data-intro-team="C" aria-haspopup="dialog" aria-controls="team-intro-dialog" style="--intro-team:#35b98b"><span class="intro-entry-letter">C</span><span><b>C 隊・隊員介紹</b><small>森林疾風隊 · 8 位夥伴</small></span><span class="intro-play-icon" aria-hidden="true">▶</span></button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -130,6 +139,7 @@
           </div>
           <div class="hrm-track"><i id="hrm-bar"></i><b id="hrm-badge">—</b></div>
           <p id="hrm-progress">戰況連線後顯示季進度（含在途）</p>
+          <button class="team-intro-link hrm-intro-link" type="button" data-intro-team="HRM" aria-haspopup="dialog" aria-controls="team-intro-dialog"><span aria-hidden="true">▶</span> 播放 HRM 獨立挑戰介紹</button>
         </article>
 
         <article class="supply-card">
@@ -159,6 +169,29 @@
   <footer><div class="shell"><p><b>READY, SET, GO!</b>　大板橋聯營開門紅大賽</p><p>進度來源：季進度（含在途）</p></div></footer>
 
   <div id="cheer-toast" class="cheer-toast" role="status" aria-live="polite" hidden></div>
+
+  <dialog id="team-intro-dialog" class="team-intro-dialog" aria-labelledby="intro-title" aria-describedby="intro-instructions">
+    <div class="intro-shell">
+      <header class="intro-header">
+        <div><p>MEET THE TEAM</p><h2 id="intro-title">隊員介紹</h2></div>
+        <button id="intro-close" class="intro-close" type="button" aria-label="關閉隊員介紹" autofocus>×</button>
+      </header>
+      <div id="intro-stage" class="intro-stage" aria-live="off" aria-atomic="true"></div>
+      <footer class="intro-controls">
+        <div class="intro-position-row"><b id="intro-position">隊伍開場</b><span>編號選人・內容可上下捲動</span></div>
+        <div id="intro-timeline" class="intro-timeline" role="group" aria-label="選擇隊員"></div>
+        <div id="intro-progress" class="intro-progress" role="progressbar" aria-label="隊員介紹播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="intro-progress-fill"></i></div>
+        <div class="intro-playback">
+          <button id="intro-prev" type="button" aria-label="上一位或開場">← 上一位</button>
+          <button id="intro-toggle" class="intro-primary" type="button">暫停播放</button>
+          <button id="intro-next" type="button" aria-label="下一位或全隊名單">下一位 →</button>
+          <button id="intro-replay" type="button">↻ 重播</button>
+        </div>
+        <p id="intro-status" class="intro-status" role="status" aria-live="polite"></p>
+        <p id="intro-instructions" class="intro-instructions">← → 切換隊員・Esc 關閉。介紹不會送出加油或修改成績。</p>
+      </footer>
+    </div>
+  </dialog>
 
   <dialog id="login-dialog" class="pop-dialog" aria-labelledby="login-title">
     <div class="dialog-card">
@@ -198,6 +231,7 @@
   </dialog>
 
   <script src="../config.js"></script>
-  <script defer src="app.js?v=20261008-motion"></script>
+  <script defer src="app.js?v=20261008-intro"></script>
+  <script defer src="team-intro.js?v=20261008-intro"></script>
 </body>
 </html>
