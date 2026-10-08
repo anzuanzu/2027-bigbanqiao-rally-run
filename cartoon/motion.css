@@ -1,0 +1,77 @@
+/* Keep movement inside the track; scores and the runner's race position stay authoritative. */
+.race-actions { flex-wrap: wrap; justify-content: flex-end; }
+.motion-toggle { font-size: .8125rem; white-space: nowrap; }
+.motion-toggle[aria-pressed="true"] { background: #e8faf2; }
+.motion-toggle:disabled { opacity: 1; color: var(--ink-soft); cursor: default; }
+.race-track { clip-path: inset(0 -4px -8px -20px); }
+.runner-wrap { transition: left 850ms cubic-bezier(.22,.75,.25,1); }
+.runner-body { position: absolute; z-index: 3; inset: 0; transform-origin: 50% 90%; animation: runner-stride-bob 320ms ease-in-out infinite; }
+.runner-img, .race-lane.cheer-bursting .runner-img { animation: none; }
+.runner-sprite { display: none; position: absolute; top: 0; left: 6px; width: 96px; height: 96px; background: url("assets/runner-sprites.png") no-repeat 0 var(--sprite-row,0%); background-size: 600% 300%; animation: runner-frames 640ms steps(1,end) infinite; }
+html[data-runner-sprites="ready"] .runner-sprite { display: block; }
+html[data-runner-sprites="ready"] .runner-img { opacity: 0; }
+[data-team-lane="B"] .runner-sprite { animation-delay: -210ms; }
+[data-team-lane="C"] .runner-sprite { animation-delay: -420ms; }
+.runner-dust { position: absolute; z-index: 0; left: 2px; bottom: 1px; width: 75px; height: 14px; pointer-events: none; }
+.runner-dust i { position: absolute; bottom: 0; width: 12px; height: 7px; border: 1px solid rgba(24,49,83,.16); border-radius: 50%; background: rgba(255,253,245,.7); opacity: 0; animation: track-dust 960ms ease-out infinite; }
+.runner-dust i:nth-child(2) { left: 20px; animation-delay: -320ms; }
+.runner-dust i:nth-child(3) { left: 35px; animation-delay: -640ms; }
+
+/* The outer layer owns level sizing; its inner layer owns the flicker, so upgrades can tween. */
+.boost-fire, .race-lane.cheer-bursting .boost-fire { transform: scaleX(var(--fire-scale)) scaleY(calc(.3 + var(--heat) * .8)); transition: transform 560ms cubic-bezier(.2,.8,.25,1), opacity 320ms ease; animation: none; filter: none; will-change: auto; }
+.boost-fire:not(.is-lit) { visibility: visible; opacity: 0; }
+.fire-visual { position: absolute; inset: 0; transform-origin: 100% 50%; animation: flame-breathe var(--flicker,480ms) ease-in-out infinite alternate; filter: drop-shadow(0 0 var(--fire-glow,7px) color-mix(in srgb,var(--middle),transparent 35%)); }
+.boost-fire:not(.is-lit) .fire-visual, .boost-fire:not(.is-lit) .fire-visual * { animation-play-state: paused; }
+.boost-fire .flame-art path { transition: fill 450ms ease; }
+.race-lane.cheer-bursting { animation: none; }
+.race-lane.cheer-bursting .lane-label small { animation: cheer-button-pop 400ms ease-out; }
+.race-lane.cheer-bursting .fire-visual { animation: flame-success 850ms ease-out; }
+.race-lane.cheer-bursting .runner-body { animation: runner-success 700ms ease-out; }
+.race-lane.cheer-bursting .runner-wrap::after { content: none; }
+.cheer-shockwave { position: absolute; z-index: 2; left: 10px; top: 26px; width: 62px; height: 62px; border: 3px solid #ffbd36; border-radius: 50%; opacity: 0; pointer-events: none; }
+.cheer-bursting .cheer-shockwave { animation: cheer-ring 800ms ease-out; }
+.cheer-feedback { position: absolute; z-index: 12; top: 4px; left: 0; width: 108px; padding: 4px 5px; border: 2px solid var(--ink); border-radius: 99px; background: #fff3b9; box-shadow: 0 3px 0 rgba(24,49,83,.15); color: var(--ink); font-size: .75rem; font-weight: 900; line-height: 1.4; text-align: center; white-space: nowrap; pointer-events: none; }
+.cheer-feedback[hidden] { display: none; }
+.cheer-bursting .cheer-feedback { animation: cheer-label 1100ms ease-out both; }
+
+@keyframes runner-frames {
+  0%, 100% { background-position-x: 0%; }
+  16.6667% { background-position-x: 20%; }
+  33.3333% { background-position-x: 40%; }
+  50% { background-position-x: 60%; }
+  66.6667% { background-position-x: 80%; }
+  83.3333% { background-position-x: 100%; }
+}
+@keyframes runner-stride-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
+@keyframes track-dust { 0% { opacity: 0; transform: translate(5px,0) scale(.4); } 20% { opacity: .6; } 100% { opacity: 0; transform: translate(-21px,-5px) scale(1.4); } }
+@keyframes flame-breathe { from { transform: scaleX(.96) scaleY(.97) skewY(-1deg); } to { transform: scaleX(1.05) scaleY(1.025) skewY(1deg); } }
+@keyframes flame-success { 0% { transform: scaleX(.9); } 35% { transform: scaleX(1.12) scaleY(1.07); } 100% { transform: scale(1); } }
+@keyframes runner-success { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-2px); } 70% { transform: translateY(1px); } }
+@keyframes cheer-button-pop { 0%,100% { transform: scale(1); } 45% { transform: scale(1.07); } }
+@keyframes cheer-ring { 0% { opacity: .85; transform: scale(.3); } 100% { opacity: 0; transform: scale(1.7); } }
+@keyframes cheer-label { 0% { opacity: 0; transform: translateY(8px) scale(.9); } 18%,75% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-4px); } }
+
+/* No permanent GPU layer promotion; off-screen/background races stop their animation clocks. */
+html[data-race-paused="true"] .race-lane *,
+html[data-race-paused="true"] .race-lane *::before,
+html[data-race-paused="true"] .race-lane *::after,
+html[data-race-paused="true"] .cheer-guide-icon { animation-play-state: paused !important; }
+html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-motion="reduced"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+html[data-motion="reduced"] .runner-img { opacity: 1; }
+html[data-motion="reduced"] .runner-sprite,
+html[data-motion="reduced"] .runner-dust,
+html[data-motion="reduced"] .cheer-shockwave,
+html[data-motion="reduced"] .fire-streak,
+html[data-motion="reduced"] .fire-spark { display: none; }
+html[data-motion="reduced"] .fire-visual { filter: none; }
+@media (prefers-reduced-motion: reduce) {
+  .runner-img { opacity: 1 !important; }
+  .runner-sprite, .runner-dust, .cheer-shockwave, .fire-streak, .fire-spark { display: none !important; }
+}
+@media (max-width: 740px) {
+  .race-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .countdown { grid-column: 1 / -1; justify-self: start; }
+  .race-actions .game-button { min-height: 44px; padding-inline: 10px; }
+  .runner-dust i:nth-child(3), .fire-spark.three, .fire-spark.four, .fire-streak.three { display: none; }
+  .fire-visual { filter: none; }
+}

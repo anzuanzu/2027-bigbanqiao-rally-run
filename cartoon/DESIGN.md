@@ -80,3 +80,24 @@
 - `assets/hrm-leader.png`：紫色 HRM 女隊長勝利姿勢。
 
 產圖方向：透明背景、大頭短身、粗深藍輪廓、誇張熱血表情、復古 16-bit 日本運動街機氛圍。角色均為原創設計，不使用既有遊戲角色、制服、標誌或場景。
+
+## 2026-10-08 動畫升級
+
+- A／B／C 使用同一張透明六格跑步影格表（6 欄 × 3 列，1774 × 887px），每 640ms 完成一次跑步循環，各隊錯開相位。原圖保留作為載入失敗及減少動畫模式的備援。
+- 人物位置只跟隨實際達成率，以 850ms 平滑移動；應援不影響成績或名次。
+- 保留 26 個獨立火焰尺寸，升級以 560ms 平滑放大；長度沿用 26 級比例，厚度隨級數增加並限制於跑道高度。外層處理大小、內層處理閃動，避免動畫互相覆蓋。7／14／20／26 級保留不同色溫。
+- 僅在應援寫入成功後，播放約 1.1 秒的「火力 +1」、短促光圈及人物彈跳；26 級後顯示「滿級應援！」。重複點擊、讀取失敗及寫入失敗皆不播放成功特效。
+- 每次雲端同步只更新賽道數字、狀態及樣式，不重建角色和火焰節點，保留動畫相位與鍵盤焦點。
+- 「動畫：標準／減少」按鈕保存本機偏好；裝置的減少動態效果設定優先。減少模式仍顯示靜態火焰、級數與成功提示。
+- 賽道離開可視區、分頁隱藏時暫停賽道動畫；手機減少火星與煙塵數量、停用火焰外層陰影。特效裁切範圍與成績區分離，底部預留 8px 避免角色脚部裁切。
+- 本輪沒有修改排名、上傳或資料庫權限。
+
+### 新增素材與產圖紀錄
+
+- 正式素材：`cartoon/assets/runner-sprites.png`（透明 PNG，約 2.1 MB）；保留原有三張單格角色圖。
+- 工具：內建 imagegen（非 CLI）；以現有 A／B／C 圖片作為造型參考，生成後檢視透明度、18 格排列及完整身體，再接入網站。
+- 最終提示詞：
+
+```text
+Use case: identity-preserve. Asset type: production transparent running animation sprite atlas for a website, exactly SIX columns and THREE rows, eighteen isolated full-body sprites. Input image 1: identity/style reference A male runner red A jersey brown spiky hair. Input image 2: identity/style reference B female runner yellow B jersey black ponytail. Input image 3: identity/style reference C male runner green C jersey black spiky hair green headband. Preserve their exact faces, hair, costumes, colors, chunky chibi sports-anime drawing style and three-quarter right-facing view. Primary request: six consecutive frames of a continuous RUNNING IN PLACE gait for EACH character. Row1 all A; row2 all B; row3 all C. Columns are ordered phases: left leg forward contact, left foot under body passing, airborne left leg back, right leg forward contact, right foot under body passing, airborne right leg back. Arms alternate opposite legs, two hands and two feet in every frame. Heads/torso nearly stationary horizontally; ONLY small natural vertical bounce. Fixed character scale across all eighteen cells, same foot baseline and centered torso in each equal square cell. Requested canvas 1536x768, 6x3 square256cells, absolutely regular equal cell grid edge-to-edge; each full-body character occupies about80% cell height with generous transparent padding, no touching adjacent cells. Genuine alpha transparent background, no floor or ground shadow, no scene, no lines or grid, no labels, no extra text except exact jersey letters A/B/C. No flames, crowns, equipment or motion streaks. Critical: ALL eighteen sprites fully visible including feet and hair; no cropped bodyparts. Preserve original character appearance. This is an animation atlas, not a poster or collection of inconsistent poses.
+```

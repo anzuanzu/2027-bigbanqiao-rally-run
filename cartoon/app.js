@@ -20,6 +20,9 @@ let cheerDate=taipeiDate(),cheerRecords=[],cheerMode='connecting',visitorId=getV
 let cheerReadSequence=0,sessionSequence=0,loginBusy=false,authSessionTimer=0;
 const fontSizeScales={small:.9,standard:1,large:1.15};
 let fontSizeSetting=readFontSizeSetting();
+let motionSetting=readMotionSetting(),raceInView=true;
+const reducedMotionQuery=window.matchMedia?.('(prefers-reduced-motion: reduce)');
+const cheerAnimationTimers=new Map(),cheerAnimationFrames=new Map();
 
 const key=(branch,name)=>`${branch}-${name}`;
 const esc=value=>String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -43,6 +46,26 @@ function applyFontSize(size=fontSizeSetting,{persist=false}={}){
   if(persist)try{localStorage.setItem('big-banqiao-font-size',fontSizeSetting);}catch{}
   document.querySelectorAll('button[data-font-size]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.fontSize===fontSizeSetting)));
 }
+function readMotionSetting(){try{return localStorage.getItem('big-banqiao-motion')==='reduced'?'reduced':'full';}catch{return'full';}}
+function applyMotionSetting({persist=false}={}){
+  const systemReduced=Boolean(reducedMotionQuery?.matches),reduced=systemReduced||motionSetting==='reduced';
+  document.documentElement.dataset.motion=reduced?'reduced':'full';
+  const button=$('motion-toggle');
+  if(button){button.textContent=reduced?'動畫：減少':'動畫：標準';button.setAttribute('aria-pressed',String(reduced));button.disabled=systemReduced;button.title=systemReduced?'目前依照裝置的「減少動態效果」設定。':'切換跑者、火焰與應援動畫。';}
+  if(persist)try{localStorage.setItem('big-banqiao-motion',motionSetting);}catch{}
+}
+function updateRaceMotion(){document.documentElement.dataset.racePaused=String(document.hidden||!raceInView);}
+function setupMotion(){
+  applyMotionSetting();updateRaceMotion();
+  $('motion-toggle')?.addEventListener('click',()=>{motionSetting=motionSetting==='reduced'?'full':'reduced';applyMotionSetting({persist:true});});
+  if(reducedMotionQuery?.addEventListener)reducedMotionQuery.addEventListener('change',()=>applyMotionSetting());
+  else reducedMotionQuery?.addListener?.(()=>applyMotionSetting());
+  if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{raceInView=entries.some(entry=>entry.isIntersecting);updateRaceMotion();},{rootMargin:'100px'});observer.observe($('raceboard'));}
+  const atlas=new Image();
+  atlas.onload=()=>{document.documentElement.dataset.runnerSprites='ready';};
+  atlas.onerror=()=>{delete document.documentElement.dataset.runnerSprites;};
+  atlas.src='assets/runner-sprites.png';
+}
 function localCheerKey(){return`big-banqiao-cheers-v2-${cheerDate}`;}
 function readLocalCheers(){try{const value=JSON.parse(localStorage.getItem(localCheerKey())||'[]');return Array.isArray(value)?value.filter(r=>r.visitor_id&&teams.some(t=>t.id===r.team)):[];}catch{return[];}}
 function writeLocalCheers(){localStorage.setItem(localCheerKey(),JSON.stringify(cheerRecords));}
@@ -55,20 +78,44 @@ function renderCheerMode(){
   node.textContent=label;node.className=`cheer-status ${state}`;
 }
 const fireScaleSteps=[0,.34,.39,.45,.51,.57,.64,.72,.8,.88,.97,1.06,1.16,1.26,1.37,1.48,1.6,1.72,1.85,1.98,2.12,2.26,2.41,2.57,2.74,2.92,3.12];
-function flame(level){const capped=Math.min(level,people.length),heat=capped/people.length,scale=fireScaleSteps[capped],flicker=Math.max(250,620-capped*13),glow=6+capped*.72,tier=capped===26?'max':capped>=20?'ultra':capped>=14?'surge':capped>=7?'hot':'ember';return`<span class="boost-fire ${level?'is-lit':''} heat-${tier} level-${capped}" style="--heat:${heat.toFixed(3)};--fire-scale:${scale};--flicker:${flicker}ms;--fire-glow:${glow.toFixed(1)}px" aria-hidden="true"><i class="fire-aura"></i><svg class="flame-art" viewBox="0 0 120 80" focusable="false"><path class="flame-outer" d="M118 40C101 18 84 8 64 18C49 26 45 7 14 5C30 20 34 31 5 40C31 49 28 61 14 75C45 72 50 53 66 63C87 72 102 59 118 40Z"/><path class="flame-middle" d="M118 40C98 24 80 20 58 29C45 34 39 25 25 20C33 31 31 36 13 40C34 45 38 51 28 62C47 56 56 49 70 55C90 61 103 52 118 40Z"/><path class="flame-core" d="M118 40C96 29 78 30 60 36C48 39 42 35 32 32C37 39 37 42 31 48C51 45 64 52 81 49C98 47 109 43 118 40Z"/></svg><i class="fire-streak one"></i><i class="fire-streak two"></i><i class="fire-streak three"></i><i class="fire-spark one"></i><i class="fire-spark two"></i><i class="fire-spark three"></i><i class="fire-spark four"></i></span>`;}
+function fireState(level){const capped=Math.max(0,Math.min(Math.floor(num(level)),26));return{level:capped,tier:capped===26?'max':capped>=20?'ultra':capped>=14?'surge':capped>=7?'hot':'ember',heat:(capped/26).toFixed(3),scale:fireScaleSteps[capped],flicker:Math.max(250,620-capped*13),glow:(6+capped*.72).toFixed(1)};}
+function flame(level){const state=fireState(level);return`<span class="boost-fire ${state.level?'is-lit':''} heat-${state.tier} level-${state.level}" style="--heat:${state.heat};--fire-scale:${state.scale};--flicker:${state.flicker}ms;--fire-glow:${state.glow}px" aria-hidden="true"><span class="fire-visual"><i class="fire-aura"></i><svg class="flame-art" viewBox="0 0 120 80" focusable="false"><path class="flame-outer" d="M118 40C101 18 84 8 64 18C49 26 45 7 14 5C30 20 34 31 5 40C31 49 28 61 14 75C45 72 50 53 66 63C87 72 102 59 118 40Z"/><path class="flame-middle" d="M118 40C98 24 80 20 58 29C45 34 39 25 25 20C33 31 31 36 13 40C34 45 38 51 28 62C47 56 56 49 70 55C90 61 103 52 118 40Z"/><path class="flame-core" d="M118 40C96 29 78 30 60 36C48 39 42 35 32 32C37 39 37 42 31 48C51 45 64 52 81 49C98 47 109 43 118 40Z"/></svg><i class="fire-streak one"></i><i class="fire-streak two"></i><i class="fire-streak three"></i><i class="fire-spark one"></i><i class="fire-spark two"></i><i class="fire-spark three"></i><i class="fire-spark four"></i></span></span>`;}
+function updateFlame(node,level){
+  const state=fireState(level);
+  node.className=`boost-fire ${state.level?'is-lit ':''}heat-${state.tier} level-${state.level}`;
+  const properties={'--heat':state.heat,'--fire-scale':String(state.scale),'--flicker':`${state.flicker}ms`,'--fire-glow':`${state.glow}px`};
+  for(const[property,value]of Object.entries(properties))if(node.style.getPropertyValue(property)!==value)node.style.setProperty(property,value);
+}
 
-function runner(teamId){return`<img class="runner-img" src="assets/team-${teamId.toLowerCase()}-runner.png" width="700" height="605" decoding="async" alt="${teamId} 隊熱血跑者">`;}
+function runner(teamId){return`<span class="runner-body"><img class="runner-img" src="assets/team-${teamId.toLowerCase()}-runner.png" width="700" height="605" decoding="async" alt="${teamId} 隊熱血跑者"><span class="runner-sprite" data-team="${teamId}" style="--sprite-row:${teams.findIndex(team=>team.id===teamId)*50}%" aria-hidden="true"></span></span>`;}
+function setText(node,value){if(node.textContent!==value)node.textContent=value;}
 function renderRace(){
-  const focusedTeam=document.activeElement?.closest('[data-cheer-team]')?.dataset.cheerTeam;
   const ranked=ranking(),rankMap=new Map(ranked.map(t=>[t.id,t.rank])),mine=ownCheer();
-  $('raceboard').innerHTML=teams.map(team=>{const s=stats(team.id),r=rankMap.get(team.id),progress=Math.max(0,Math.min(s.rate,100))/100,finished=hasLoaded&&s.rate>=100,status=!hasLoaded?'等待同步':finished?'完賽！':r===1?'領先中':s.rate>=80?'最後衝刺':'全速前進',cheers=cheerCount(team.id);return`<article class="race-lane" data-team-lane="${team.id}" style="--team:${team.color};--label-color:${team.head}">
-    <button class="lane-label ${mine?.team===team.id?'is-my-cheer':''}" type="button" data-cheer-team="${team.id}" aria-busy="${cheerBusy}" aria-label="${mine?`今天已替 ${mine.team} 隊加油；`:''}替 ${team.label} 加油，目前 ${cheers} 人，火力 ${Math.min(cheers,26)} 級"><b>${team.id}</b><span>${team.name}</span><small>${mine?.team===team.id?'✓ 今日已加油':mine?'今日已應援':'🔥 點我加油'}・Lv.${Math.min(cheers,26)}</small></button>
-    <div class="race-track"><div class="runner-wrap" style="--race-progress:${progress}">${flame(cheers)}${runner(team.id)}</div><span class="finish" aria-hidden="true">FINISH</span></div>
-    <div class="lane-stats"><b>${hasLoaded?`${s.rate.toFixed(1)}%`:'—'}</b><span>${hasLoaded?money(s.progress):'進度待同步'} / ${money(s.target)}</span></div>
-    <span class="lane-status ${r===1?'leader':''} ${finished?'finished':''}">${status}</span>${finished?'<span class="confetti" aria-hidden="true"><i></i><i></i><i></i></span>':''}
-  </article>`}).join('');
+  const board=$('raceboard');
+  // Keep the animated nodes alive across cloud refreshes so frames, focus and scale transitions continue.
+  if(!board.querySelector('[data-team-lane]'))board.innerHTML=teams.map(team=>`<article class="race-lane" data-team-lane="${team.id}" style="--team:${team.color};--label-color:${team.head}">
+    <button class="lane-label" type="button" data-cheer-team="${team.id}"><b>${team.id}</b><span>${team.name}</span><small></small></button>
+    <div class="race-track"><div class="runner-wrap" style="--race-progress:0">${flame(0)}<span class="runner-dust" aria-hidden="true"><i></i><i></i><i></i></span><span class="cheer-shockwave" aria-hidden="true"></span>${runner(team.id)}<span class="cheer-feedback" aria-hidden="true" hidden></span></div><span class="finish" aria-hidden="true">FINISH</span></div>
+    <div class="lane-stats"><b></b><span></span></div><span class="lane-status"></span><span class="confetti" aria-hidden="true" hidden><i></i><i></i><i></i></span>
+  </article>`).join('');
+  for(const team of teams){
+    const lane=board.querySelector(`[data-team-lane="${team.id}"]`),s=stats(team.id),rank=rankMap.get(team.id),progress=Math.max(0,Math.min(s.rate,100))/100,finished=hasLoaded&&s.rate>=100,cheers=cheerCount(team.id),level=fireState(cheers).level;
+    const button=lane.querySelector('[data-cheer-team]'),status=lane.querySelector('.lane-status');
+    lane.dataset.fireLevel=String(level);
+    button.classList.toggle('is-my-cheer',mine?.team===team.id);
+    button.setAttribute('aria-busy',String(cheerBusy));
+    const label=`${mine?`今天已替 ${mine.team} 隊加油；`:''}替 ${team.label} 加油，目前 ${cheers} 人，火力 ${level} 級`;
+    if(button.getAttribute('aria-label')!==label)button.setAttribute('aria-label',label);
+    setText(button.querySelector('small'),`${mine?.team===team.id?'✓ 今日已加油':mine?'今日已應援':'🔥 點我加油'}・Lv.${level}`);
+    lane.querySelector('.runner-wrap').style.setProperty('--race-progress',String(progress));
+    updateFlame(lane.querySelector('.boost-fire'),cheers);
+    setText(lane.querySelector('.lane-stats b'),hasLoaded?`${s.rate.toFixed(1)}%`:'—');
+    setText(lane.querySelector('.lane-stats span'),`${hasLoaded?money(s.progress):'進度待同步'} / ${money(s.target)}`);
+    setText(status,!hasLoaded?'等待同步':finished?'完賽！':rank===1?'領先中':s.rate>=80?'最後衝刺':'全速前進');
+    status.classList.toggle('leader',rank===1);status.classList.toggle('finished',finished);
+    lane.querySelector('.confetti').hidden=!finished;
+  }
   $('podium').innerHTML=ranked.map((team,index)=>`<article class="podium-card ${index===0&&hasLoaded?'first':''}"><span class="podium-place">${hasLoaded?index+1:'?'}</span><p><b>${team.label}・${team.name}</b><span>${team.members.length} 位選手・目標 ${money(team.target)}</span></p><strong>${hasLoaded?`${team.rate.toFixed(1)}%`:'—'}</strong></article>`).join('');
-  if(focusedTeam)document.querySelector(`[data-cheer-team="${focusedTeam}"]`)?.focus({preventScroll:true});
 }
 
 function playerScore(person){const progress=personProgress(person);if(!hasLoaded)return'<b>—</b><span>尚未同步</span>';const diff=progress-person.target;return`<b>${money(progress)}</b><span class="${diff>=0?'go':'wait'}">${diff>=0?'已達標':`差 ${money(Math.abs(diff))}`}</span>`;}
@@ -100,7 +147,15 @@ function setBusy(value){busy=value;$('dialog-sync-button').disabled=value;$('raw
 function recordMap(records){return Object.fromEntries(records.map(r=>[key(r.branch,r.advisor_name),{quarterTarget:r.quarter_target,quarterProgress:r.quarter_progress,monthlyProgress:r.monthly_progress,quarterRate:r.quarter_rate,fundProgress:r.fund_progress,insuranceProgress:r.insurance_progress,sourceDate:r.source_date||''}]));}
 
 function showCheerToast(message,tone='success'){const toast=$('cheer-toast');clearTimeout(cheerToastTimer);toast.textContent=message;toast.className=`cheer-toast ${tone}`;toast.hidden=false;cheerToastTimer=setTimeout(()=>{toast.hidden=true;},2600);}
-function animateCheer(teamId){const lane=document.querySelector(`[data-team-lane="${teamId}"]`);if(!lane)return;lane.classList.remove('cheer-bursting');requestAnimationFrame(()=>lane.classList.add('cheer-bursting'));setTimeout(()=>lane.classList.remove('cheer-bursting'),1200);}
+function animateCheer(teamId,{atMax=false}={}){
+  const lane=document.querySelector(`[data-team-lane="${teamId}"]`);if(!lane)return;
+  clearTimeout(cheerAnimationTimers.get(teamId));cancelAnimationFrame(cheerAnimationFrames.get(teamId));
+  const feedback=lane.querySelector('.cheer-feedback');
+  feedback.textContent=atMax?'滿級應援！':'火力 +1';feedback.hidden=false;
+  lane.classList.remove('cheer-bursting');
+  cheerAnimationFrames.set(teamId,requestAnimationFrame(()=>{lane.classList.add('cheer-bursting');cheerAnimationFrames.delete(teamId);}));
+  cheerAnimationTimers.set(teamId,setTimeout(()=>{lane.classList.remove('cheer-bursting');feedback.hidden=true;cheerAnimationTimers.delete(teamId);},1100));
+}
 async function loadCheers({quiet=false}={}){
   const today=taipeiDate();
   if(today!==cheerDate){cheerDate=today;cheerRecords=[];}
@@ -131,7 +186,7 @@ async function submitCheer(teamId){
   try{
     if(!await loadCheers({quiet:true}))throw new Error('目前無法同步，這次加油尚未送出，請稍後再試。');
     const existing=ownCheer();
-    if(existing){showCheerToast(`今天已替 ${existing.team} 隊加油，明天再來！`,'notice');animateCheer(existing.team);return;}
+    if(existing){showCheerToast(`今天已替 ${existing.team} 隊加油，明天再來！`,'notice');return;}
     const submittedDate=cheerDate,previousCount=cheerCount(teamId);
     if(isConfigured){
       const{error}=await supabase.from('team_cheers').insert({cheer_date:submittedDate,visitor_id:visitorId,team:teamId});
@@ -140,7 +195,7 @@ async function submitCheer(teamId){
       await loadCheers({quiet:true});
     }else{cheerRecords.push({visitor_id:visitorId,team:teamId});writeLocalCheers();renderRace();}
     if(submittedDate!==cheerDate){showCheerToast('加油已送出！已進入新的一天，可再送出今日應援。');return;}
-    animateCheer(teamId);
+    animateCheer(teamId,{atMax:previousCount>=26});
     showCheerToast(previousCount>=26?`🔥 已替 ${team.label} 加油！火力已達最高 26 級。`:`🔥 成功替 ${team.label} 增加一級火力！`);
   }catch(error){
     if(error.code==='23505'){await loadCheers({quiet:true});showCheerToast('今天已經加油過了，明天再來！','notice');}
@@ -255,10 +310,10 @@ function setupEvents(){
   $('account-login-form').addEventListener('submit',e=>{e.preventDefault();void signIn($('email').value.trim(),$('password').value,$('account-login-message'));});
   $('signout-button').addEventListener('click',async()=>{await supabase.auth.signOut();await applySession(null);});
   $('team-tabs').addEventListener('click',e=>{const button=e.target.closest('[data-team-tab]');if(!button)return;selectedTeam=button.dataset.teamTab;document.querySelectorAll('[data-team-tab]').forEach(tab=>tab.setAttribute('aria-pressed',String(tab===button)));renderPlayers();});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden){void refreshCheerDay();void loadPerformance({announce:false});}});
+  document.addEventListener('visibilitychange',()=>{updateRaceMotion();if(!document.hidden){void refreshCheerDay();void loadPerformance({announce:false});}});
 }
 async function init(){
-  cheerRecords=isConfigured?[]:readLocalCheers();render();setupEvents();
+  cheerRecords=isConfigured?[]:readLocalCheers();render();setupEvents();setupMotion();
   $('manager-login-form').hidden=!hasManagerUploadAccount;$('login-divider').hidden=!hasManagerUploadAccount;
   $('manager-email').value=hasManagerUploadAccount?String(config.uploadAccountEmail):'';setBusy(false);
   setInterval(()=>void refreshCheerDay(),30000);
