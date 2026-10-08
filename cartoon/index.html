@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#bfe8ff">
   <title>衝呀！2027 開門紅大賽｜卡通賽跑版</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23bfe8ff'/%3E%3Ccircle cx='31' cy='29' r='16' fill='%23f6b83f' stroke='%23183153' stroke-width='4'/%3E%3Cpath d='M21 28h3m14 0h3M25 37c4 3 9 3 13 0' fill='none' stroke='%23183153' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20261008-usability">
 </head>
 <body>
   <a class="skip-link" href="#race">跳到即時賽況</a>
@@ -46,6 +46,13 @@
     </div>
   </header>
 
+  <nav class="mobile-nav" aria-label="手機快捷導覽">
+    <a href="#race">即時賽況</a>
+    <a href="#players">選手村</a>
+    <a href="#rewards">補給站</a>
+    <a href="../index.html">精品版</a>
+  </nav>
+
   <main id="top">
     <section class="hero">
       <div class="cloud cloud-one" aria-hidden="true"></div>
@@ -65,9 +72,9 @@
         <aside class="mission-card" aria-label="全體任務總覽">
           <div class="mission-flag">MISSION</div>
           <div class="hero-team-art" aria-hidden="true">
-            <img src="assets/team-a-runner.png" alt="">
-            <img src="assets/team-b-runner.png" alt="">
-            <img src="assets/team-c-runner.png" alt="">
+            <img src="assets/team-a-runner.png" width="700" height="605" alt="" decoding="async">
+            <img src="assets/team-b-runner.png" width="700" height="605" alt="" decoding="async">
+            <img src="assets/team-c-runner.png" width="700" height="605" alt="" decoding="async">
           </div>
           <div class="mission-copy"><span>全體挑戰目標</span><strong>3.385<small> 億</small></strong></div>
           <div class="mission-stats"><div><span>目前進度</span><b id="overall-progress">—</b></div><div><span>總達成率</span><b id="overall-rate">—</b></div></div>
@@ -85,7 +92,7 @@
         <p id="status-message" class="status-line" aria-live="polite">正在連線公開戰況…</p>
         <div class="cheer-guide">
           <span class="cheer-guide-icon" aria-hidden="true">🔥</span>
-          <p><b>今日應援火力</b><span>直接點擊 A、B、C 隊名即可加油；每個瀏覽器每天限點一次，台北時間午夜歸零。</span></p>
+          <p><b>今日應援火力</b><span>點擊隊名加油，火焰最高 26 級；每個瀏覽器每天一次，台北時間午夜歸零。</span></p>
           <em id="cheer-mode">應援連線中…</em>
         </div>
         <div class="stadium">
@@ -101,11 +108,11 @@
       <div class="shell">
         <div class="section-title">
           <div><p>🎽 TEAM PLAYERS</p><h2>三組選手村</h2><span>25 位夥伴跨分行組隊，組目標只差 200 萬</span></div>
-          <div id="team-tabs" class="tabs" role="tablist" aria-label="切換隊伍">
-            <button role="tab" type="button" aria-selected="true" data-team-tab="all">全部</button>
-            <button role="tab" type="button" aria-selected="false" data-team-tab="A">A 隊</button>
-            <button role="tab" type="button" aria-selected="false" data-team-tab="B">B 隊</button>
-            <button role="tab" type="button" aria-selected="false" data-team-tab="C">C 隊</button>
+          <div id="team-tabs" class="tabs" role="group" aria-label="篩選隊伍">
+            <button type="button" aria-pressed="true" data-team-tab="all">全部</button>
+            <button type="button" aria-pressed="false" data-team-tab="A">A 隊</button>
+            <button type="button" aria-pressed="false" data-team-tab="B">B 隊</button>
+            <button type="button" aria-pressed="false" data-team-tab="C">C 隊</button>
           </div>
         </div>
         <div id="player-cards" class="player-cards"></div>
@@ -117,7 +124,7 @@
         <article class="hrm-stage">
           <div class="bonus-label">👑 BONUS STAGE</div>
           <div class="hrm-main">
-            <div class="hrm-character" aria-hidden="true"><img src="assets/hrm-leader.png" alt=""></div>
+            <div class="hrm-character" aria-hidden="true"><img src="assets/hrm-leader.png" alt="" loading="lazy" decoding="async"></div>
             <div><p>楊璧菁的獨立挑戰</p><h2>3,000<small> 萬</small></h2><span>達成 100% 可抓抓樂<br>提早達成，可連續抓三個月！</span></div>
           </div>
           <div class="hrm-track"><i id="hrm-bar"></i><b id="hrm-badge">—</b></div>
@@ -129,15 +136,15 @@
           <h2>能量補給站</h2>
           <div class="reward-list">
             <article class="reward-live-card monthly-rank">
-              <header><span class="reward-emoji">🪙</span><p><b>每月團隊第一名</b><small>個人 AP 欄月進度加總・50 元＋10 元抓抓樂</small></p><em>MONTHLY</em></header>
+              <header><span class="reward-emoji">🪙</span><p><b>每月團隊第一名</b><small>月進度 ÷ 各組開門紅責任目標・50 元＋10 元抓抓樂</small></p><em>MONTHLY</em></header>
               <ol id="monthly-team-ranking" class="mini-ranking" aria-live="polite"></ol>
             </article>
             <article class="reward-live-card champion-rank">
-              <header><span class="reward-emoji">🍽️</span><p><b>開門紅總冠軍</b><small>季進度（含在途）加總・冠軍隊伍歡樂聚餐</small></p><em>CHAMPION</em></header>
+              <header><span class="reward-emoji">🍽️</span><p><b>開門紅總冠軍</b><small>季進度（含在途）÷ 各組開門紅責任目標・冠軍聚餐</small></p><em>CHAMPION</em></header>
               <ol id="champion-team-ranking" class="mini-ranking" aria-live="polite"></ol>
             </article>
             <article class="reward-live-card personal-rank">
-              <header><span class="reward-emoji">🎟️</span><p><b>個人突破 3K／4K／5K</b><small>季進度（含在途）・餐券 2／4／8 張</small></p><em>MILESTONE</em></header>
+              <header><span class="reward-emoji">🎟️</span><p><b>個人突破 3K／4K／5K</b><small>3,000／4,000／5,000 萬・餐券 2／4／8 張</small></p><em>MILESTONE</em></header>
               <div id="personal-milestone-ranking" class="personal-milestones" aria-live="polite"></div>
             </article>
           </div>
@@ -152,11 +159,11 @@
 
   <div id="cheer-toast" class="cheer-toast" role="status" aria-live="polite" hidden></div>
 
-  <dialog id="login-dialog" class="pop-dialog">
+  <dialog id="login-dialog" class="pop-dialog" aria-labelledby="login-title">
     <div class="dialog-card">
       <button class="dialog-close" type="button" data-close-dialog aria-label="關閉">×</button>
       <div class="dialog-mascot" aria-hidden="true">🔐</div>
-      <p class="dialog-kicker">MANAGER CHECK</p><h2>驗證更新權限</h2><p class="dialog-intro">即時戰況已公開同步；只有上傳或更新資料時才需要管理驗證。</p>
+      <p class="dialog-kicker">MANAGER CHECK</p><h2 id="login-title">驗證更新權限</h2><p class="dialog-intro">即時戰況已公開同步；只有上傳或更新資料時才需要管理驗證。</p>
       <form id="manager-login-form" class="login-form manager" hidden>
         <input id="manager-email" type="email" autocomplete="username" hidden>
         <label for="manager-password">管理上傳密碼</label>
@@ -174,22 +181,22 @@
     </div>
   </dialog>
 
-  <dialog id="manage-dialog" class="pop-dialog">
+  <dialog id="manage-dialog" class="pop-dialog" aria-labelledby="manage-title">
     <div class="dialog-card">
       <button class="dialog-close" type="button" data-close-dialog aria-label="關閉">×</button>
       <div class="dialog-mascot" aria-hidden="true">📣</div>
-      <p class="dialog-kicker">UPDATE SCORE</p><h2>更新比賽戰況</h2><p class="dialog-intro">與精品版、Q4monitor 共用同一份雲端實績。</p>
+      <p class="dialog-kicker">UPDATE SCORE</p><h2 id="manage-title">更新比賽戰況</h2><p class="dialog-intro">與精品版、Q4monitor 共用同一份雲端實績。</p>
       <div class="upload-list">
         <button id="dialog-sync-button" class="upload-choice" type="button"><span>🔄</span><p><b>同步最新雲端資料</b><small>重新整理全部選手進度</small></p><i>→</i></button>
         <label id="raw-file-label" class="upload-choice"><span>📗</span><p><b>上傳季職達原始檔</b><small>.xlsx｜季進度（含在途）</small></p><i>→</i><input id="raw-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
         <label id="monthly-file-label" class="upload-choice ap-only"><span>🅰️</span><p><b>僅更新 AP 月進度</b><small>.xlsx｜不改季進度、目標或資料日期</small></p><i>→</i><input id="monthly-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
         <label id="performance-file-label" class="upload-choice"><span>📊</span><p><b>上傳 Excel／CSV</b><small>使用標準績效欄位</small></p><i>→</i><input id="performance-file" type="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
       </div>
-      <p id="upload-message" class="upload-message" aria-live="polite">檔案會先檢查姓名與欄位，確認後才寫入。</p>
+      <p id="upload-message" class="upload-message" aria-live="polite">選檔後會檢查姓名與欄位，通過後直接更新共用資料。</p>
     </div>
   </dialog>
 
   <script src="../config.js"></script>
-  <script defer src="app.js?v=20260916-runner-fix"></script>
+  <script defer src="app.js?v=20261008-usability"></script>
 </body>
 </html>
