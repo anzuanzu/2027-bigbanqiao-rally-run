@@ -9,7 +9,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23bfe8ff'/%3E%3Ccircle cx='31' cy='29' r='16' fill='%23f6b83f' stroke='%23183153' stroke-width='4'/%3E%3Cpath d='M21 28h3m14 0h3M25 37c4 3 9 3 13 0' fill='none' stroke='%23183153' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css?v=20261008-usability">
   <link rel="stylesheet" href="motion.css?v=20261008-motion">
-  <link rel="stylesheet" href="team-intro.css?v=20261008-intro">
+  <link rel="stylesheet" href="team-intro.css?v=20261008-ensemble">
 </head>
 <body>
   <a class="skip-link" href="#race">跳到即時賽況</a>
@@ -104,7 +104,7 @@
         </div>
         <div id="podium" class="podium-row"></div>
         <div class="team-intro-hub" role="group" aria-label="播放隊員介紹">
-          <p><b>認識你的戰隊</b><span>點擊才播放・一起認識跨分行夥伴</span></p>
+          <p><b>認識你的戰隊</b><span>點擊全隊登場・含短音效，可調整音量或靜音</span></p>
           <div class="team-intro-entries">
             <button type="button" data-intro-team="A" aria-haspopup="dialog" aria-controls="team-intro-dialog" style="--intro-team:#f05b61"><span class="intro-entry-letter">A</span><span><b>A 隊・隊員介紹</b><small>火焰衝鋒隊 · 9 位夥伴</small></span><span class="intro-play-icon" aria-hidden="true">▶</span></button>
             <button type="button" data-intro-team="B" aria-haspopup="dialog" aria-controls="team-intro-dialog" style="--intro-team:#f6b83f"><span class="intro-entry-letter">B</span><span><b>B 隊・隊員介紹</b><small>閃電追風隊 · 8 位夥伴</small></span><span class="intro-play-icon" aria-hidden="true">▶</span></button>
@@ -176,19 +176,21 @@
         <div><p>MEET THE TEAM</p><h2 id="intro-title">隊員介紹</h2></div>
         <button id="intro-close" class="intro-close" type="button" aria-label="關閉隊員介紹" autofocus>×</button>
       </header>
-      <div id="intro-stage" class="intro-stage" aria-live="off" aria-atomic="true"></div>
+      <div id="intro-team-switch" class="intro-team-switch" role="group" aria-label="切換介紹組別">
+        <button type="button" data-intro-switch="A" aria-pressed="false">A 隊</button>
+        <button type="button" data-intro-switch="B" aria-pressed="false">B 隊</button>
+        <button type="button" data-intro-switch="C" aria-pressed="false">C 隊</button>
+        <button type="button" data-intro-switch="HRM" aria-pressed="false">HRM</button>
+      </div>
+      <div id="intro-stage" class="intro-stage" tabindex="0" role="region" aria-label="全隊隊員名單" aria-live="off" aria-atomic="true"></div>
       <footer class="intro-controls">
-        <div class="intro-position-row"><b id="intro-position">隊伍開場</b><span>編號選人・內容可上下捲動</span></div>
-        <div id="intro-timeline" class="intro-timeline" role="group" aria-label="選擇隊員"></div>
-        <div id="intro-progress" class="intro-progress" role="progressbar" aria-label="隊員介紹播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="intro-progress-fill"></i></div>
-        <div class="intro-playback">
-          <button id="intro-prev" type="button" aria-label="上一位或開場">← 上一位</button>
-          <button id="intro-toggle" class="intro-primary" type="button">暫停播放</button>
-          <button id="intro-next" type="button" aria-label="下一位或全隊名單">下一位 →</button>
-          <button id="intro-replay" type="button">↻ 重播</button>
+        <div class="intro-sound-controls">
+          <button id="intro-sound" type="button" aria-pressed="true">音效：開</button>
+          <label class="intro-volume-control" for="intro-volume"><span>音量</span><input id="intro-volume" type="range" min="0" max="100" value="35" aria-label="介紹音效音量"><output id="intro-volume-value" for="intro-volume">35%</output></label>
+          <button id="intro-replay" class="intro-primary" type="button">↻ 重播全員登場</button>
         </div>
         <p id="intro-status" class="intro-status" role="status" aria-live="polite"></p>
-        <p id="intro-instructions" class="intro-instructions">← → 切換隊員・Esc 關閉。介紹不會送出加油或修改成績。</p>
+        <p id="intro-instructions" class="intro-instructions">全隊同時登場・內容可上下捲動・Esc 關閉。音效僅在點擊後播放，建議先調低裝置音量。</p>
       </footer>
     </div>
   </dialog>
@@ -231,7 +233,8 @@
   </dialog>
 
   <script src="../config.js"></script>
-  <script defer src="app.js?v=20261008-intro"></script>
-  <script defer src="team-intro.js?v=20261008-intro"></script>
+  <script defer src="app.js?v=20261008-ensemble"></script>
+  <script defer src="intro-audio.js?v=20261008-ensemble"></script>
+  <script defer src="team-intro.js?v=20261008-ensemble"></script>
 </body>
 </html>

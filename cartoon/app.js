@@ -122,7 +122,7 @@ function playerScore(person){const progress=personProgress(person);if(!hasLoaded
 function renderPlayers(){
   $('player-cards').innerHTML=teams.map(team=>{const s=stats(team.id),visible=selectedTeam==='all'||selectedTeam===team.id;return`<article class="team-card ${visible?'':'is-hidden'}" data-team-card="${team.id}" style="--team:${team.color};--head-color:${team.head}">
     <header class="team-card-head"><span class="team-avatar">${team.id}</span><div><b>${team.name}</b><small>${s.members.length} 位跨分行選手</small></div><span class="team-total"><strong>${(s.target/10000).toLocaleString('zh-TW')}</strong><small>萬目標</small></span></header>
-    <button class="team-intro-link" type="button" data-intro-team="${team.id}" aria-label="播放 ${team.label} 隊員介紹" aria-haspopup="dialog" aria-controls="team-intro-dialog"><span aria-hidden="true">▶</span> 播放隊員介紹 <span class="intro-link-note">${s.members.length} 位夥伴登場</span></button>
+    <button class="team-intro-link" type="button" data-intro-team="${team.id}" aria-label="播放 ${team.label} 全員登場介紹，含音效" aria-haspopup="dialog" aria-controls="team-intro-dialog"><span aria-hidden="true">▶</span> 全員登場介紹 <span class="intro-link-note">${s.members.length} 位夥伴・含音效</span></button>
     <ol class="players">${s.members.map((p,i)=>`<li class="player"><span class="player-number">${String(i+1).padStart(2,'0')}</span><span class="player-info"><b>${esc(p.name)}</b><span>${esc(p.branch.replace('分行',''))}・${esc(p.level)}・目標 ${money(p.target)}</span></span><span class="player-score">${playerScore(p)}</span></li>`).join('')}</ol>
     <footer class="team-card-foot"><span>全隊達成率</span><b>${hasLoaded?rateText(s.progress,s.target):'待同步'}</b></footer>
   </article>`}).join('');
